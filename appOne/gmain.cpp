@@ -4,8 +4,17 @@ program()
 	window(1920, 1080, full);
 	//オブジェクトデータ
 	VECTOR o(0, 0);
-	VECTOR a(0.3f, 0.2f);
-	VECTOR b(-0.3f, 0.2f);
+	VECTOR a(1, 0);
+	VECTOR b(0.86f, 0.5f);
+	//いろ
+	angleMode(DEGREES);
+	colorMode(HSV, 100);
+	COLOR aCol(0, 50, 100);
+	COLOR bCol(210, 50, 100);
+	COLOR arcCol(60, 50, 100);
+	COLOR cCol(0, 0, 100);
+	COLOR tCol(0, 0, 100);
+	COLOR backCol(180, 40, 40);
 	//マウスで点をつかむためのデータ
 	VECTOR mouse;
 	VECTOR* points[] = { &a,&b };
@@ -15,7 +24,7 @@ program()
 	//メインループ
 	loop()
 	{
-		clear(0, 60, 0);
+		clear(backCol);
 		mathAxis(3.0f);
 		//マウスで点をつかんで移動する
 		{
@@ -38,9 +47,29 @@ program()
 				grabPoint = nullptr;
 			}
 		}
+		//内積・外積・なす角
+		float dp = a.x * b.x + a.y * b.y;//|a||b|cosθ
+		float cp = a.x * b.y - a.y * b.x;//|a||b|sinθ
+		float angleAB = Atan2(cp, dp);
 		//オブジェクト表示
-		mathArrow(o, a, COLOR(255, 200, 200), 10);
-		mathText("a", a, BCENTER, COLOR(255, 255, 255), 60);
-		mathPoint(b, COLOR(200, 200, 255), 20);
+		//底辺・内積
+		VECTOR an = normalize(a);
+		VECTOR d = an * dp;
+		mathLine(o, d, cCol, 2);
+		//高さ・外積
+		VECTOR oa(-an.y, an.x);
+		VECTOR c = oa * cp;
+		mathLine(d, d+c, cCol, 2);
+		//斜辺
+		mathLine(o, d + c, cCol, 2);
+		//弧・なす角
+		mathArc(Atan2(a.y, a.x), angleAB, 0.1f, arcCol, 5);
+
+		mathArrow(o, a, aCol, 6);
+		mathText("a", a, BCENTER, tCol, 60);
+		mathArrow(0,b, bCol, 6);
+		mathText("b", b, BCENTER, tCol, 60);
+
+		print((let)"なす角" + angleAB, tCol, 30);
 	}
 }
