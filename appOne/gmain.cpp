@@ -1,6 +1,6 @@
 #include"libOne.h"
 /*
-円と線分の交点座標ip(intersection point)を求める計算
+円と直線の交点座標ip(intersection point)を求める計算
 
 重要→円の中心を原点として考えていく
 「円の中心(原点)」から「円と線分の交差点」までの長さは必ず半径rとなる。
@@ -22,7 +22,12 @@ l = (dot(p,v) ± √(dot(p,v)^2 - dot(v,v)(dot(p,p)-r^2))) / dot(v,v)
 vは正規化ベクトルなので
 l = dot(p,v) ± √(dot(p,v)^2 - dot(p,p)-r^2)
 */
-bool calcSegmentCircleInsectPos(
+/*
+すみません。動画で紹介している関数名とは別の名前にしました
+calcSegmentCircleInsectPosを
+calcLineCircleIntersectPosに変更しました
+*/
+bool calcLineCircleIntersectPos(
     VECTOR cp,//円の中心点
     float r,//円の半径
     VECTOR p,//線分の始点
@@ -37,12 +42,12 @@ bool calcSegmentCircleInsectPos(
     //ipまでの長さlを求める
     float dPV = dot(p, v);
     float dPP = dot(p, p);
-    float sq = dPV * dPV - dPP + r * r;//解の公式ルートの中
-    if (Abs(sq) < 0.000001f)
-        sq = 0.0f; //誤差修正
-    if (sq < 0.0f)
+    float ss = dPV * dPV - dPP + r * r;//解の公式ルートの中
+    if (Abs(ss) < 0.000001f)
+        ss = 0.0f; //誤差修正
+    if (ss < 0.0f)
         return false; //ルートの中がマイナスのとき解は無い＝衝突していない
-    float s = Sqrt(sq);
+    float s = Sqrt(ss);
     float l1 = -dPV - s;
     float l2 = -dPV + s;
     //交点座標
@@ -108,14 +113,15 @@ program()
         //円と線分
         mathCircle(cp, r + r, COLOR(0, 0, 0, 0), circleCol, 8);
         mathArrow(sp, ep, segCol, 8);
-        //交点
+        //交点 intersection point
         {
             VECTOR ip1, ip2;
             VECTOR v = ep - sp;
-            bool flag = calcSegmentCircleInsectPos(
+            bool flag = calcLineCircleIntersectPos(
                 cp, r, sp, v, &ip1, &ip2
             );
             if (flag) {
+                //交点が線分内にあったら表示
                 float t;
                 t = dot(v, ip1 - sp) / v.magSq();
                 if (0.0f <= t && t <= 1.0f)
